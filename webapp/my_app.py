@@ -75,21 +75,28 @@ def detect_and_track(video_path, model_path, output_csv, target_class_name=None)
     df.to_csv(output_csv, index=False)
     return out_path, df
 
+# Interface Streamlit
 st.title("🌟 Détection et suivi d'objets personnalisé")
 
 video_file = st.file_uploader("📁 Uploader une vidéo", type=["mp4"])
-model_file = st.file_uploader("📦 Uploader un modèle YOLOv8 (.pt)", type=["pt"])
+model_file = st.file_uploader("📦 Uploader un modèle YOLOv8 (.pt) (optionnel, 'best.pt' sera utilisé sinon)", type=["pt"])
+
+# Par défaut, on suppose que best.pt est dans le dossier parent du répertoire `webapp`
+default_model_path = os.path.join("..", "best.pt")
 
 selected_class = st.selectbox("🌯️ Choisir l'objet à détecter :", COCO_CLASSES)
 
-if video_file and model_file:
+if video_file:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_vid:
         temp_vid.write(video_file.read())
         video_path = temp_vid.name
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pt") as temp_model:
-        temp_model.write(model_file.read())
-        model_path = temp_model.name
+    if model_file:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pt") as temp_model:
+            temp_model.write(model_file.read())
+            model_path = temp_model.name
+    else:
+        model_path = default_model_path
 
     if st.button("🚀 Lancer la détection + tracking"):
         output_csv = "tracking_log.csv"
