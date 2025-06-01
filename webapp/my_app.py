@@ -10,7 +10,7 @@ from sort import Sort
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Liste des classes COCO supportées par YOLOv8
+# Liste des classes COCO
 COCO_CLASSES = [
     "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck",
     "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
@@ -75,16 +75,16 @@ def detect_and_track(video_path, model_path, output_csv, target_class_name=None)
     df.to_csv(output_csv, index=False)
     return out_path, df
 
-# Interface Streamlit
-st.title("🌟 Détection et suivi d'objets personnalisé")
+# --- Interface Streamlit ---
+st.title("🎯 Détection et Suivi en Temps Réel")
 
-video_file = st.file_uploader("📁 Uploader une vidéo", type=["mp4"])
-model_file = st.file_uploader("📦 Uploader un modèle YOLOv8 (.pt) (optionnel, 'best.pt' sera utilisé sinon)", type=["pt"])
+video_file = st.file_uploader("📥 Uploader une vidéo MP4", type=["mp4"])
+model_file = st.file_uploader("📦 Uploader un modèle YOLOv8 (.pt) (optionnel)", type=["pt"])
 
-# Par défaut, on suppose que best.pt est dans le dossier parent du répertoire `webapp`
-default_model_path = os.path.join("..", "best.pt")
+# 🔁 Si aucun modèle fourni, utiliser le modèle par défaut
+default_model_path = os.path.join(os.path.dirname(__file__), "best.pt")
 
-selected_class = st.selectbox("🌯️ Choisir l'objet à détecter :", COCO_CLASSES)
+selected_class = st.selectbox("🧠 Choisir une classe à détecter :", COCO_CLASSES)
 
 if video_file:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_vid:
@@ -98,15 +98,15 @@ if video_file:
     else:
         model_path = default_model_path
 
-    if st.button("🚀 Lancer la détection + tracking"):
+    if st.button("🚀 Lancer la détection et le tracking"):
         output_csv = "tracking_log.csv"
         output_vid, df = detect_and_track(video_path, model_path, output_csv, selected_class)
 
-        st.success("✅ Tracking terminé. Visualisation des résultats :")
+        st.success("✅ Traitement terminé !")
         st.video(output_vid)
 
         with open(output_vid, "rb") as f:
-            st.download_button("📅 Télécharger la vidéo annotée", f.read(), file_name=os.path.basename(output_vid), mime="video/mp4")
+            st.download_button("📥 Télécharger la vidéo annotée", f.read(), file_name=os.path.basename(output_vid), mime="video/mp4")
 
         st.subheader("📊 Histogramme des objets trackés")
         fig1, ax1 = plt.subplots()
@@ -116,10 +116,9 @@ if video_file:
         ax1.set_title("Occurrences par ID")
         st.pyplot(fig1)
 
-        graph_path = "tracking_histogram.png"
-        fig1.savefig(graph_path)
-        with open(graph_path, "rb") as f:
-            st.download_button("📅 Télécharger l'histogramme", f.read(), file_name="tracking_histogram.png", mime="image/png")
+        fig1.savefig("tracking_histogram.png")
+        with open("tracking_histogram.png", "rb") as f:
+            st.download_button("📈 Télécharger l'histogramme", f.read(), file_name="tracking_histogram.png", mime="image/png")
 
         st.subheader("🔥 Carte thermique des positions")
         heatmap_data = df[['x1', 'y1']].copy()
@@ -130,5 +129,5 @@ if video_file:
         sns.heatmap(heatmap_pivot, cmap='Reds', ax=ax2)
         st.pyplot(fig2)
 
-        st.subheader("📄 Télécharger les logs")
-        st.download_button("📅 Télécharger le fichier CSV", df.to_csv(index=False), file_name="tracking_log.csv", mime="text/csv")
+        st.subheader("🗂️ Télécharger les logs CSV")
+        st.download_button("📄 Télécharger CSV", df.to_csv(index=False), file_name="tracking_log.csv", mime="text/csv")
