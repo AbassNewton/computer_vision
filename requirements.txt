@@ -6,3 +6,7 @@ streamlit
 opencv-python-headless
 numpy
 seaborn
+matplotlib
+Pillow
+torch
+torchvision
