@@ -3,3 +3,5 @@ opencv-python
 pandas
 filterpy
 streamlit
+opencv-python-headless
+numpy
