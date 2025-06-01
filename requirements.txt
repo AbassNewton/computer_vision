@@ -5,3 +5,4 @@ filterpy
 streamlit
 opencv-python-headless
 numpy
+seaborn
